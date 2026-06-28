@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>优化报告 - Amazon Ads Agent</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-brand">
+        <a href="/">Amazon Ads Agent</a>
+      </div>
+      <div class="navbar-links">
+        <a href="/upload">开始分析</a>
+        <a href="/history">历史记录</a>
+        <a href="/contact">联系我们</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="padding-top: 30px; padding-bottom: 40px;">
+
+    <!-- Report header -->
+    <div class="report-header">
+      <div>
+        <h2 style="font-size: 20px; font-weight: 600;">广告优化报告</h2>
+        <div class="report-meta">
+          {{ report.created_at }} | 产品: {{ report.product_keyword }}
+          {% if report.demo_mode %}<span class="badge badge-demo" style="margin-left: 8px;">演示数据</span>{% endif %}
+        </div>
+      </div>
+      <div>
+        <a href="/download/{{ report.report_id }}" class="btn btn-secondary">下载报告</a>
+        <a href="/upload" class="btn btn-primary" style="margin-left: 8px;">重新分析</a>
+      </div>
+    </div>
+
+    <!-- Metrics grid -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">总花费</div>
+        <div class="metric-value">${{ "%.2f"|format(report.summary.total_spend) }}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">总销售额</div>
+        <div class="metric-value">${{ "%.2f"|format(report.summary.total_sales) }}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">整体 ACOS</div>
+        <div class="metric-value
+          {% if report.diagnosis.stats.overall_acos > 100 %}danger
+          {% elif report.diagnosis.stats.overall_acos > 60 %}warning
+          {% else %}success{% endif %}">
+          {{ "%.1f"|format(report.diagnosis.stats.overall_acos) }}%
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">浪费花费</div>
+        <div class="metric-value
+          {% if report.diagnosis.stats.wasted_spend > 50 %}danger
+          {% elif report.diagnosis.stats.wasted_spend > 20 %}warning
+          {% else %}success{% endif %}">
+          ${{ "%.2f"|format(report.diagnosis.stats.wasted_spend) }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Secondary metrics -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">总点击</div>
+        <div class="metric-value" style="font-size: 20px;">{{ report.summary.total_clicks }}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">总订单</div>
+        <div class="metric-value" style="font-size: 20px;">{{ report.summary.total_orders }}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">平均 CPC</div>
+        <div class="metric-value" style="font-size: 20px;">${{ "%.2f"|format(report.summary.avg_cpc) }}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">平均转化率</div>
+        <div class="metric-value" style="font-size: 20px;">{{ "%.1f"|format(report.summary.avg_cvr) }}%</div>
+      </div>
+    </div>
+
+    <!-- Keyword performance summary -->
+    <div class="card">
+      <div class="card-title">关键词诊断汇总</div>
+      <div style="display: flex; gap: 20px;">
+        <div style="flex: 1; background: #E1F5EE; padding: 16px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 24px; font-weight: 600; color: #1D9E75;">{{ report.diagnosis.stats.good_count }}</div>
+          <div style="font-size: 12px; color: #085041;">表现优秀</div>
+        </div>
+        <div style="flex: 1; background: #FAEEDA; padding: 16px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 24px; font-weight: 600; color: #EF9F27;">{{ report.diagnosis.stats.warning_count }}</div>
+          <div style="font-size: 12px; color: #633806;">需要关注</div>
+        </div>
+        <div style="flex: 1; background: #FCEBEB; padding: 16px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 24px; font-weight: 600; color: #E24B4A;">{{ report.diagnosis.stats.critical_count }}</div>
+          <div style="font-size: 12px; color: #791F1F;">紧急处理</div>
+        </div>
+        <div style="flex: 1; background: #f5f6f8; padding: 16px; border-radius: 8px; text-align: center;">
+          <div style="font-size: 24px; font-weight: 600; color: #666;">{{ report.diagnosis.stats.total_keywords }}</div>
+          <div style="font-size: 12px; color: #666;">关键词总数</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Problem keywords alerts -->
+    {% if report.diagnosis.alerts %}
+    <div class="card">
+      <div class="card-title">问题关键词（按花费排序）</div>
+      {% for alert in report.diagnosis.alerts[:15] %}
+      <div class="alert-item {{ alert.level }}">
+        <span class="alert-level {{ alert.level }}">{{ alert.level | upper }}</span>
+        <span class="alert-message">{{ alert.message }}</span>
+        <div class="alert-suggestion" style="margin-top: 4px; padding-left: 4px;">
+          建议: {{ alert.suggestion }}
+        </div>
+        <div style="margin-top: 6px; font-size: 11px; color: #999;">
+          花费 ${{ "%.2f"|format(alert.spend) }} | 点击 {{ alert.clicks }} | 订单 {{ alert.orders }} | 销售 ${{ "%.2f"|format(alert.sales) }} | ACOS {{ "%.1f"|format(alert.acos) }}%
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Competitor data -->
+    {% if report.competitors.products %}
+    <div class="card">
+      <div class="card-title">
+        竞品数据对比
+        {% if report.competitors.source == "apify" %}
+          <span class="badge">实时抓取</span>
+        {% elif report.competitors.source == "local_fallback" %}
+          <span class="badge">本地数据</span>
+        {% elif report.competitors.source == "local" %}
+          <span class="badge">本地数据</span>
+        {% endif %}
+        <span style="font-size: 12px; color: #999; margin-left: 8px;">共 {{ report.competitors.count }} 个竞品</span>
+      </div>
+
+      <!-- Crawl stats -->
+      {% if report.competitors.keywords_used %}
+      <div style="background: #f8f9fa; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 12px; color: #666;">
+        <strong>搜索关键词:</strong> {{ report.competitors.keywords_used | join(", ") }}
+        {% if report.competitors.total_crawled %} |
+        <strong>爬取:</strong> {{ report.competitors.total_crawled }} 条 |
+        <strong>去重后:</strong> {{ report.competitors.deduplicated }} 条
+        {% if report.competitors.estimated_cost %} |
+        <strong>消耗:</strong> ${{ report.competitors.estimated_cost }}{% endif %}
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% set comp = report.competitors.products %}
+      {% if comp %}
+      {% set prices = comp | map(attribute='price') | list %}
+      {% set ratings = comp | map(attribute='rating') | list %}
+      {% set reviews = comp | map(attribute='reviews') | list %}
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
+        <div class="metric-card">
+          <div class="metric-label">竞品价格范围</div>
+          <div class="metric-value" style="font-size: 18px;">
+            ${{ "%.2f"|format(prices | min) }} ~ ${{ "%.2f"|format(prices | max) }}
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">平均评分</div>
+          <div class="metric-value" style="font-size: 18px;">
+            {{ "%.1f"|format(ratings | sum / ratings | length) }}
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">平均评论数</div>
+          <div class="metric-value" style="font-size: 18px;">
+            {{ (reviews | sum / reviews | length) | round | int }}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <div style="overflow-x: auto;">
+        <table class="competitor-table">
+          <thead>
+            <tr>
+              <th>商品名称</th>
+              <th>品牌</th>
+              <th>价格</th>
+              <th>评分</th>
+              <th>评论数</th>
+              <th>来源关键词</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in report.competitors.products[:20] %}
+            <tr>
+              <td title="{{ p.title }}">{{ p.title[:50] }}{% if p.title|length > 50 %}...{% endif %}</td>
+              <td>{{ p.brand or "-" }}</td>
+              <td>${{ "%.2f"|format(p.price) }}</td>
+              <td>{{ "%.1f"|format(p.rating) }} stars</td>
+              <td>{{ "{:,}".format(p.reviews) }}</td>
+              <td><span class="badge">{{ p.source_keyword or "-" }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- AI Analysis -->
+    <div class="card">
+      <div class="card-title">AI 深度分析建议</div>
+      {% if report.ai_error %}
+      <div style="background: #FCEBEB; padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; color: #791F1F;">
+        AI 分析遇到问题: {{ report.ai_error }}。以下为部分分析结果：
+      </div>
+      {% endif %}
+      <div class="ai-content">{{ report.ai_analysis }}</div>
+    </div>
+
+    <!-- Actions -->
+    <div style="text-align: center; margin-top: 30px; margin-bottom: 20px;">
+      <a href="/download/{{ report.report_id }}" class="btn btn-secondary">下载报告</a>
+      <a href="/upload" class="btn btn-primary" style="margin-left: 8px;">分析新数据</a>
+      <a href="/history" class="btn btn-secondary" style="margin-left: 8px;">查看历史</a>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-content">
+      <p>Amazon Ads Optimization Agent &copy; 2026 | Powered by DeepSeek AI</p>
+      <div class="footer-links">
+        <a href="/contact">联系我们</a>
+        <a href="{{ contact.github }}" target="_blank">GitHub 开源</a>
+      </div>
+      <div class="footer-contact">
+        <span>📧 {{ contact.email }}</span>
+        <span>💬 微信: {{ contact.wechat }}</span>
+        <span>📱 {{ contact.phone }}</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
