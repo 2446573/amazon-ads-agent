@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>亚马逊广告优化 Agent</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-brand">
+        <a href="/">Amazon Ads Agent</a>
+      </div>
+      <div class="navbar-links">
+        <a href="/upload">开始分析</a>
+        <a href="/history">历史记录</a>
+        <a href="/contact">联系我们</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="hero">
+      <h1>亚马逊广告智能优化助手</h1>
+      <p>上传你的广告报表，AI 帮你找出浪费预算的关键词，对比竞品数据，生成可执行的优化建议。不自动调价，只给最实在的建议。</p>
+      <div class="hero-actions">
+        <a href="/upload" class="btn btn-primary btn-large">开始分析</a>
+        <a href="/history" class="btn btn-secondary btn-large">历史报告</a>
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">📊</div>
+        <h3>广告诊断</h3>
+        <p>自动识别浪费预算的关键词、ACOS 过高的词、转化率低的词，按紧急程度排序</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🏪</div>
+        <h3>竞品对比</h3>
+        <p>实时抓取亚马逊竞品数据，对比价格、评分、评论数，找到你的竞争差距</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🤖</div>
+        <h3>AI 建议</h3>
+        <p>DeepSeek AI 从 7 个维度深度分析，给出具体的出价调整、预算重分配方案</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">使用流程</div>
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; text-align: center;">
+        <div>
+          <div style="font-size: 24px; font-weight: 700; color: #185FA5;">1</div>
+          <div style="font-size: 13px; color: #666; margin-top: 4px;">上传广告报表 CSV</div>
+        </div>
+        <div>
+          <div style="font-size: 24px; font-weight: 700; color: #185FA5;">2</div>
+          <div style="font-size: 13px; color: #666; margin-top: 4px;">输入产品关键词</div>
+        </div>
+        <div>
+          <div style="font-size: 24px; font-weight: 700; color: #185FA5;">3</div>
+          <div style="font-size: 13px; color: #666; margin-top: 4px;">AI 分析（约 30 秒）</div>
+        </div>
+        <div>
+          <div style="font-size: 24px; font-weight: 700; color: #185FA5;">4</div>
+          <div style="font-size: 13px; color: #666; margin-top: 4px;">查看优化报告</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">支持的数据格式</div>
+      <p style="font-size: 13px; color: #666;">
+        亚马逊卖家中心 &rarr; 广告 &rarr; 广告报表 &rarr; 搜索词报告（Search Term Report）<br>
+        导出为 CSV 格式，包含关键词、花费、点击、订单、销售额等字段。<br>
+        没有报表？可以使用<strong>演示模式</strong>，用示例数据体验完整功能。
+      </p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-content">
+      <p>Amazon Ads Optimization Agent &copy; 2026 | Powered by DeepSeek AI</p>
+      <div class="footer-links">
+        <a href="/contact">联系我们</a>
+        <a href="{{ contact.github }}" target="_blank">GitHub 开源</a>
+      </div>
+      <div class="footer-contact">
+        <span>📧 {{ contact.email }}</span>
+        <span>💬 微信: {{ contact.wechat }}</span>
+        <span>📱 {{ contact.phone }}</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
