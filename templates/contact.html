@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>联系我们 - Amazon Ads Agent</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-brand">
+        <a href="/">Amazon Ads Agent</a>
+      </div>
+      <div class="navbar-links">
+        <a href="/upload">开始分析</a>
+        <a href="/history">历史记录</a>
+        <a href="/contact">联系我们</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="padding-top: 30px; padding-bottom: 40px;">
+    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 24px;">联系我们</h2>
+
+    <!-- Contact info cards -->
+    <div class="card">
+      <div class="card-title">联系方式</div>
+      <p style="font-size: 13px; color: #666; margin-bottom: 20px;">
+        如果你对工具有任何疑问、建议或合作意向，欢迎通过以下方式联系我们：
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+        <div class="contact-card">
+          <div class="contact-icon">📧</div>
+          <div class="contact-label">邮箱</div>
+          <div class="contact-value">{{ contact.email }}</div>
+          <a href="mailto:{{ contact.email }}" class="btn btn-secondary" style="margin-top: 10px; font-size: 12px;">发送邮件</a>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">💬</div>
+          <div class="contact-label">微信</div>
+          <div class="contact-value" style="font-size: 12px; word-break: break-all;">{{ contact.wechat }}</div>
+          <p style="font-size: 11px; color: #999; margin-top: 10px;">复制微信号添加好友</p>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">📱</div>
+          <div class="contact-label">电话</div>
+          <div class="contact-value">{{ contact.phone }}</div>
+          <a href="tel:{{ contact.phone }}" class="btn btn-secondary" style="margin-top: 10px; font-size: 12px;">拨打电话</a>
+        </div>
+      </div>
+
+      <div style="background: #E6F1FB; padding: 16px; border-radius: 8px; font-size: 13px; color: #185FA5;">
+        <strong>GitHub 开源项目:</strong>
+        <a href="{{ contact.github }}" target="_blank" style="color: #185FA5; text-decoration: underline;">{{ contact.github }}</a>
+      </div>
+    </div>
+
+    <!-- Message form -->
+    <div class="card">
+      <div class="card-title">在线留言</div>
+      <p style="font-size: 13px; color: #666; margin-bottom: 20px;">
+        填写以下表单，我们会尽快与你联系：
+      </p>
+
+      <form id="contactForm" onsubmit="submitMessage(event)">
+        <div class="form-group">
+          <label class="form-label">你的称呼（可选）</label>
+          <input type="text" name="name" class="form-input" placeholder="你的名字或公司名">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">邮箱 *</label>
+          <input type="email" name="email" class="form-input" placeholder="your@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">留言内容 *</label>
+          <textarea name="message" class="form-input" rows="5" placeholder="请描述你的需求或问题..." required
+                    style="resize: vertical; font-family: inherit;"></textarea>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+          <button type="submit" class="btn btn-primary btn-large" id="submitBtn">提交留言</button>
+        </div>
+      </form>
+
+      <div id="successMsg" style="display: none; background: #E1F5EE; padding: 16px; border-radius: 8px; margin-top: 20px; text-align: center;">
+        <strong>留言成功！</strong> 我们会尽快与你联系。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-content">
+      <p>Amazon Ads Optimization Agent &copy; 2026 | Powered by DeepSeek AI</p>
+      <div class="footer-links">
+        <a href="/contact">联系我们</a>
+        <a href="{{ contact.github }}" target="_blank">GitHub 开源</a>
+      </div>
+      <div class="footer-contact">
+        <span>📧 {{ contact.email }}</span>
+        <span>💬 微信: {{ contact.wechat }}</span>
+        <span>📱 {{ contact.phone }}</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function submitMessage(event) {
+      event.preventDefault();
+      var form = document.getElementById("contactForm");
+      var btn = document.getElementById("submitBtn");
+
+      var formData = new FormData(form);
+      var data = {};
+      formData.forEach(function(value, key) { data[key] = value; });
+
+      btn.disabled = true;
+      btn.textContent = "提交中...";
+
+      fetch("/contact", {
+        method: "POST",
+        body: formData
+      })
+      .then(function(resp) { return resp.json(); })
+      .then(function(data) {
+        if (data.success) {
+          form.style.display = "none";
+          document.getElementById("successMsg").style.display = "block";
+        } else {
+          alert("Error: " + (data.error || "Unknown error"));
+          btn.disabled = false;
+          btn.textContent = "提交留言";
+        }
+      })
+      .catch(function(err) {
+        alert("Network error. Please try again.");
+        btn.disabled = false;
+        btn.textContent = "提交留言";
+      });
+    }
+  </script>
+</body>
+</html>
