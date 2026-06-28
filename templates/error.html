@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>错误 - 亚马逊广告优化 Agent</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-brand">
+        <a href="/">Amazon Ads Agent</a>
+      </div>
+      <div class="navbar-links">
+        <a href="/upload">开始分析</a>
+        <a href="/history">历史记录</a>
+        <a href="/contact">联系我们</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="padding-top: 60px; text-align: center;">
+    <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+    <h2 style="font-size: 20px; margin-bottom: 12px;">出错了</h2>
+    <p style="color: #666; margin-bottom: 24px;">{{ message | default("Something went wrong") }}</p>
+    <a href="/upload" class="btn btn-primary">返回</a>
+  </div>
+</body>
+</html>
