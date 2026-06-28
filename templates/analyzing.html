@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分析中 - 亚马逊广告优化 Agent</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-brand">
+        <a href="/">Amazon Ads Agent</a>
+      </div>
+      <div class="navbar-links">
+        <a href="/upload">开始分析</a>
+        <a href="/history">历史记录</a>
+        <a href="/contact">联系我们</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="analyzing-container">
+      <div class="spinner"></div>
+      <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 8px;">AI 分析中</h2>
+      <p style="color: #666; font-size: 14px;">正在处理你的广告数据，大约需要 30 秒</p>
+
+      <div class="analyzing-steps">
+        <div class="step active" id="step1">
+          <div class="step-dot"></div>
+          <span>解析广告报表数据</span>
+        </div>
+        <div class="step" id="step2">
+          <div class="step-dot"></div>
+          <span>规则引擎诊断关键词</span>
+        </div>
+        <div class="step" id="step3">
+          <div class="step-dot"></div>
+          <span>抓取亚马逊竞品数据</span>
+        </div>
+        <div class="step" id="step4">
+          <div class="step-dot"></div>
+          <span>DeepSeek AI 深度分析</span>
+        </div>
+        <div class="step" id="step5">
+          <div class="step-dot"></div>
+          <span>生成优化报告</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Animate steps
+    var steps = [
+      document.getElementById("step1"),
+      document.getElementById("step2"),
+      document.getElementById("step3"),
+      document.getElementById("step4"),
+      document.getElementById("step5"),
+    ];
+
+    var current = 0;
+    var interval = setInterval(function() {
+      if (current < steps.length - 1) {
+        steps[current].classList.remove("active");
+        steps[current].classList.add("done");
+        current++;
+        steps[current].classList.add("active");
+      } else {
+        clearInterval(interval);
+      }
+    }, 2000);
+  </script>
+</body>
+</html>
