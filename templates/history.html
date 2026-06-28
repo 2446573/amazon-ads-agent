@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>历史记录 - 亚马逊广告优化 Agent</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-brand">
+        <a href="/">Amazon Ads Agent</a>
+      </div>
+      <div class="navbar-links">
+        <a href="/upload">开始分析</a>
+        <a href="/history">历史记录</a>
+        <a href="/contact">联系我们</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="padding-top: 30px; padding-bottom: 40px;">
+    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 24px;">历史报告</h2>
+
+    {% if reports %}
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>时间</th>
+            <th>产品关键词</th>
+            <th>关键词数</th>
+            <th>花费</th>
+            <th>ACOS</th>
+            <th>问题词</th>
+            <th>模式</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in reports %}
+          <tr>
+            <td>{{ r.created_at }}</td>
+            <td>{{ r.product_keyword or "-" }}</td>
+            <td>{{ r.keyword_count }}</td>
+            <td>${{ "%.2f"|format(r.total_spend) }}</td>
+            <td
+              {% if r.overall_acos > 100 %}style="color: #E24B4A; font-weight: 600;"
+              {% elif r.overall_acos > 60 %}style="color: #EF9F27;"
+              {% endif %}>
+              {{ "%.1f"|format(r.overall_acos) }}%
+            </td>
+            <td>
+              {% if r.critical_count > 0 %}
+              <span style="color: #E24B4A; font-weight: 500;">{{ r.critical_count }} 个</span>
+              {% else %}
+              <span style="color: #1D9E75;">无</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if r.demo_mode %}
+              <span class="badge badge-demo">演示</span>
+              {% else %}
+              <span class="badge">真实</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="/report/{{ r.report_id }}">查看</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 60px;">
+      <div style="font-size: 40px; margin-bottom: 16px;">📋</div>
+      <h3 style="font-size: 16px; font-weight: 500; margin-bottom: 8px;">还没有分析记录</h3>
+      <p style="font-size: 13px; color: #999; margin-bottom: 20px;">开始第一次广告数据分析</p>
+      <a href="/upload" class="btn btn-primary">开始分析</a>
+    </div>
+    {% endif %}
+
+    <div style="text-align: center; margin-top: 20px;">
+      <a href="/upload" class="btn btn-secondary">新建分析</a>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-content">
+      <p>Amazon Ads Optimization Agent &copy; 2026 | Powered by DeepSeek AI</p>
+      <div class="footer-links">
+        <a href="/contact">联系我们</a>
+        <a href="{{ contact.github }}" target="_blank">GitHub 开源</a>
+      </div>
+      <div class="footer-contact">
+        <span>📧 {{ contact.email }}</span>
+        <span>💬 微信: {{ contact.wechat }}</span>
+        <span>📱 {{ contact.phone }}</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
