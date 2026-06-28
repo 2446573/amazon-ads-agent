@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>上传数据 - Amazon Ads Agent</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-brand">
+        <a href="/">Amazon Ads Agent</a>
+      </div>
+      <div class="navbar-links">
+        <a href="/upload">开始分析</a>
+        <a href="/history">历史记录</a>
+        <a href="/contact">联系我们</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container" style="padding-top: 30px; padding-bottom: 40px;">
+    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 24px;">上传广告数据</h2>
+
+    <form id="analyzeForm" action="/analyze" method="POST" enctype="multipart/form-data">
+
+      <!-- Mode selection -->
+      <div class="card">
+        <div class="card-title">选择数据来源</div>
+
+        <div class="form-check">
+          <input type="radio" name="data_mode" id="mode_upload" value="upload" checked onchange="toggleMode()">
+          <label for="mode_upload" style="font-size: 14px; cursor: pointer;">
+            <strong>上传我的广告报表 CSV</strong>
+            <span style="color: #999; font-size: 12px;">（从亚马逊卖家中心导出）</span>
+          </label>
+        </div>
+
+        <div class="form-check">
+          <input type="radio" name="data_mode" id="mode_demo" value="demo" onchange="toggleMode()">
+          <label for="mode_demo" style="font-size: 14px; cursor: pointer;">
+            <strong>使用演示数据</strong>
+            <span style="color: #999; font-size: 12px;">（用示例数据体验功能，无需上传文件）</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Upload area -->
+      <div class="card" id="uploadCard">
+        <div class="card-title">上传 CSV 文件</div>
+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('csvFile').click()">
+          <div class="upload-icon">📄</div>
+          <p style="font-size: 14px; color: #666;">
+            <strong>点击选择文件</strong> 或拖拽 CSV 文件到此处
+          </p>
+          <p style="font-size: 12px; color: #999; margin-top: 8px;">
+            支持亚马逊搜索词报告（Search Term Report）CSV 格式
+          </p>
+          <input type="file" name="csv_file" id="csvFile" accept=".csv,.tsv,.txt"
+                 style="display: none;" onchange="onFileSelected(this)">
+        </div>
+        <div id="fileInfo" style="margin-top: 12px; display: none;">
+          <div style="background: #E1F5EE; padding: 10px 14px; border-radius: 6px; font-size: 13px;">
+            <strong>已选择:</strong> <span id="fileName"></span>
+            (<span id="fileSize"></span>)
+          </div>
+        </div>
+      </div>
+
+      <!-- Product info -->
+      <div class="card">
+        <div class="card-title">产品关键词</div>
+
+        <div class="form-group">
+          <label class="form-label">搜索关键词（逗号分隔，最多5个）*</label>
+          <input type="text" name="product_keyword" class="form-input" id="keywordInput"
+                 placeholder="例如: dog toys, dog chew toys, dog squeaky toys"
+                 value="dog toys" oninput="updateKeywordInfo()">
+          <div class="form-hint">
+            1个关键词爬取前50条竞品；多个关键词每个爬取前20条，合并去重后分析
+          </div>
+          <div id="keywordInfo" style="margin-top: 10px; display: flex; gap: 16px; flex-wrap: wrap;">
+            <div style="background: #E6F1FB; padding: 6px 12px; border-radius: 6px; font-size: 12px;">
+              关键词数量: <strong id="kwCount">1</strong> / 5
+            </div>
+            <div style="background: #E1F5EE; padding: 6px 12px; border-radius: 6px; font-size: 12px;">
+              预计爬取: <strong id="kwTotal">50</strong> 条
+            </div>
+            <div style="background: #FAEEDA; padding: 6px 12px; border-radius: 6px; font-size: 12px;">
+              预估成本: <strong id="kwCost">$0.20</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-check">
+          <input type="checkbox" name="use_apify" id="useApify" value="true" checked onchange="toggleApify()">
+          <label for="useApify" style="font-size: 13px; cursor: pointer;">
+            <strong>实时抓取竞品数据</strong>
+            <span style="color: #999; font-size: 12px;">（通过 Apify 搜索亚马逊，约需 10-30 秒。不勾选则使用本地已有数据）</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div style="text-align: center; margin-top: 30px;">
+        <button type="submit" class="btn btn-primary btn-large" id="submitBtn">
+          开始 AI 分析
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="footer">
+    <div class="footer-content">
+      <p>Amazon Ads Optimization Agent &copy; 2026 | Powered by DeepSeek AI</p>
+      <div class="footer-links">
+        <a href="/contact">联系我们</a>
+        <a href="{{ contact.github }}" target="_blank">GitHub 开源</a>
+      </div>
+      <div class="footer-contact">
+        <span>📧 {{ contact.email }}</span>
+        <span>💬 微信: {{ contact.wechat }}</span>
+        <span>📱 {{ contact.phone }}</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleMode() {
+      var isDemo = document.getElementById("mode_demo").checked;
+      var uploadCard = document.getElementById("uploadCard");
+      var csvFile = document.getElementById("csvFile");
+
+      if (isDemo) {
+        uploadCard.style.opacity = "0.5";
+        uploadCard.style.pointerEvents = "none";
+        csvFile.removeAttribute("required");
+      } else {
+        uploadCard.style.opacity = "1";
+        uploadCard.style.pointerEvents = "auto";
+      }
+    }
+
+    function toggleApify() {
+      var checked = document.getElementById("useApify").checked;
+      document.getElementById("keywordInfo").style.display = checked ? "flex" : "none";
+    }
+
+    function updateKeywordInfo() {
+      var raw = document.getElementById("keywordInput").value;
+      var keywords = raw.split(",").map(function(k) { return k.trim(); }).filter(function(k) { return k.length > 0; });
+      keywords = keywords.filter(function(item, idx, arr) { return arr.indexOf(item) === idx; });
+      var count = Math.min(keywords.length, 5);
+      var perKeyword = count === 1 ? 50 : 20;
+      var total = count * perKeyword;
+      var cost = (total * 0.004 + count * 0.001).toFixed(2);
+
+      document.getElementById("kwCount").textContent = count;
+      document.getElementById("kwTotal").textContent = total;
+      document.getElementById("kwCost").textContent = "$" + cost;
+    }
+
+    function onFileSelected(input) {
+      var fileInfo = document.getElementById("fileInfo");
+      var fileName = document.getElementById("fileName");
+      var fileSize = document.getElementById("fileSize");
+
+      if (input.files && input.files[0]) {
+        var file = input.files[0];
+        fileName.textContent = file.name;
+        var sizeKB = (file.size / 1024).toFixed(1);
+        if (sizeKB > 1024) {
+          fileSize.textContent = (sizeKB / 1024).toFixed(1) + " MB";
+        } else {
+          fileSize.textContent = sizeKB + " KB";
+        }
+        fileInfo.style.display = "block";
+      }
+    }
+
+    // Drag and drop
+    var uploadArea = document.getElementById("uploadArea");
+    uploadArea.addEventListener("dragover", function(e) {
+      e.preventDefault();
+      this.classList.add("dragover");
+    });
+    uploadArea.addEventListener("dragleave", function(e) {
+      e.preventDefault();
+      this.classList.remove("dragover");
+    });
+    uploadArea.addEventListener("drop", function(e) {
+      e.preventDefault();
+      this.classList.remove("dragover");
+      var files = e.dataTransfer.files;
+      if (files.length > 0) {
+        var input = document.getElementById("csvFile");
+        input.files = files;
+        onFileSelected(input);
+      }
+    });
+
+    // Form submit
+    document.getElementById("analyzeForm").addEventListener("submit", function(e) {
+      var isDemo = document.getElementById("mode_demo").checked;
+      var submitBtn = document.getElementById("submitBtn");
+
+      if (!isDemo) {
+        var csvFile = document.getElementById("csvFile");
+        if (!csvFile.files || !csvFile.files[0]) {
+          e.preventDefault();
+          alert("Please upload a CSV file or switch to demo mode.");
+          return;
+        }
+      }
+
+      var demoInput = document.createElement("input");
+      demoInput.type = "hidden";
+      demoInput.name = "demo_mode";
+      demoInput.value = isDemo ? "true" : "false";
+      this.appendChild(demoInput);
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "分析中...";
+
+      e.preventDefault();
+
+      var formData = new FormData(this);
+      formData.append("demo_mode", isDemo ? "true" : "false");
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "/analyze", true);
+
+      submitBtn.textContent = "AI 分析中，请稍候...";
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            var resp = JSON.parse(xhr.responseText);
+            if (resp.redirect) {
+              window.location.href = resp.redirect;
+            } else {
+              alert("Error: " + (resp.error || "Unknown error"));
+              submitBtn.disabled = false;
+              submitBtn.textContent = "开始 AI 分析";
+            }
+          } else {
+            try {
+              var errResp = JSON.parse(xhr.responseText);
+              alert("Error: " + (errResp.error || "Server error"));
+            } catch (err) {
+              alert("Server error. Please try again.");
+            }
+            submitBtn.disabled = false;
+            submitBtn.textContent = "开始 AI 分析";
+          }
+        }
+      };
+
+      xhr.send(formData);
+    });
+
+    // Initialize
+    updateKeywordInfo();
+  </script>
+</body>
+</html>
